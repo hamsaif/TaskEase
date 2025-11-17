@@ -42,3 +42,11 @@ model Task {
   updatedAt   DateTime   @updatedAt
 
 }
+
+model Subtask {
+  id          String   @id @default(uuid())
+  name        String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+}
