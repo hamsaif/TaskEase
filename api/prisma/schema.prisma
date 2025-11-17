@@ -46,7 +46,7 @@ model Task {
   updatedAt   DateTime   @updatedAt
 
   userId     String 
-
+  categoryId String?
 
 }
 
