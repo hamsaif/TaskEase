@@ -33,3 +33,32 @@ export const GET = async (
         data: user
     });
 };
+
+// service delete user
+export const DELETE = async (
+    request: NextRequest,
+    { params }: { params: { slug: string } }
+) => {
+    const id = params.slug;
+
+    const check = await prisma.user.findUnique({
+        where: { id },
+        select: { id: true }
+    });
+
+    if (!check) {
+        return NextResponse.json({
+            message: "User gagal dihapus, id tidak ditemukan",
+            success: false
+        }, { status: 404 });
+    }
+
+    await prisma.user.delete({
+        where: { id }
+    });
+
+    return NextResponse.json({
+        message: "User berhasil dihapus",
+        success: true
+    });
+};
