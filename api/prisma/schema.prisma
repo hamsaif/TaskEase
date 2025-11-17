@@ -23,3 +23,10 @@ model User {
   updatedAt DateTime   @updatedAt
 
 }
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  color     String? 
+  createdAt DateTime @default(now())
+}
