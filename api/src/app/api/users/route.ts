@@ -5,51 +5,69 @@ const prisma = new PrismaClient();
 
 //  ambil semua user
 export const GET = async () => {
+  try {
     const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            createdAt: true
-        }
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
 
     return NextResponse.json({
-        message: "Berhasil mengambil data user",
-        success: true,
-        data: users
+      success: true,
+      message: "Data user ditemukan",
+      data: users
     });
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      message: "Gagal mengambil data user",
+      error: error
+    });
+  }
 };
-
 // cerate user
 export const POST = async (request: NextRequest) => {
+  try {
     const body = await request.json();
 
-    // Cek email sudah ada
+    const { name, email, password } = body;
+
+    // Cek apakah email sudah dipakai
     const check = await prisma.user.findUnique({
-        where: { email: body.email },
-        select: { id: true }
+      where: { email }
     });
 
     if (check) {
-        return NextResponse.json({
-            message: "Email sudah digunakan",
-            success: false
-        }, { status: 400 });
+      return NextResponse.json({
+        success: false,
+        message: "Email sudah digunakan"
+      });
     }
 
-    const create = await prisma.user.create({
-        data: {
-            name: body.name,
-            email: body.email,
-            password: body.password
-        }
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password
+      }
     });
 
     return NextResponse.json({
-        message: "User berhasil dibuat",
-        success: true,
-        data: create
+      success: true,
+      message: "User berhasil ditambahkan",
+      data: user
     });
+
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      message: "Gagal menambah user",
+      error: error
+    });
+  }
 };
 
