@@ -24,6 +24,7 @@ model User {
   
 
   categories Category[]
+  tasks Task[]
 }
 
 model Category {
@@ -49,6 +50,8 @@ model Task {
 
   userId     String 
   categoryId String?
+
+  user     User      @relation(fields: [userId], references: [id])
 
 }
 
