@@ -6,12 +6,12 @@ const prisma = new PrismaClient();
 // ambil satu user
 export const GET = async (
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: { id: string } }
 ) => {
-    const id = params.slug;
+    const id = Number(params.id);
 
     const user = await prisma.user.findUnique({
-        where: { id },
+        where: { id},
         select: {
             id: true,
             name: true,
@@ -28,7 +28,6 @@ export const GET = async (
     }
 
     return NextResponse.json({
-        message: "User ditemukan",
         success: true,
         data: user
     });
@@ -37,9 +36,9 @@ export const GET = async (
 // service delete user
 export const DELETE = async (
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: { id: string } }
 ) => {
-    const id = params.slug;
+    const id = Number(params.id);
 
     const check = await prisma.user.findUnique({
         where: { id },
@@ -66,9 +65,9 @@ export const DELETE = async (
 // service update user
 export const PUT = async (
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: { id: string } }
 ) => {
-    const id = params.slug;
+    const id = Number(params.id);
     const body = await request.json();
 
     // Cek email sudah dipakai user lain
