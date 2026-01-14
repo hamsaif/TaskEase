@@ -52,7 +52,7 @@ export async function DELETE(
 ) {
   const { id } = await context.params;
   const userId = Number(id);
-
+// cek apakah id valid
   if (isNaN(userId)) {
     return NextResponse.json(
       { success: false, message: "ID tidak valid" },
@@ -60,19 +60,19 @@ export async function DELETE(
     );
   }
 
-
+// cek apakah user ada
   const check = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true }
   });
-
+// jika user tidak ada
   if (!check) {
     return NextResponse.json(
       { success: false, message: "User tidak ditemukan" },
       { status: 404 }
     );
   }
-
+// jika ada maka hapus user
   await prisma.user.delete({
     where: { id: userId }
   });
