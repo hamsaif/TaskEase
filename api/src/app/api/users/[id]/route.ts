@@ -48,22 +48,38 @@ export async function GET(
 // service delete user
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(context.params.id);
+  const { id } = await context.params;
+  const userId = Number(id);
 
-  if (isNaN(id)) {
+  if (isNaN(userId)) {
     return NextResponse.json(
       { success: false, message: "ID tidak valid" },
       { status: 400 }
     );
   }
 
-  await prisma.user.delete({ where: { id } });
+
+  const check = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true }
+  });
+
+  if (!check) {
+    return NextResponse.json(
+      { success: false, message: "User tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
+  await prisma.user.delete({
+    where: { id: userId }
+  });
 
   return NextResponse.json({
     success: true,
-    message: "User berhasil dihapus",
+    message: "User berhasil dihapus"
   });
 }
 
