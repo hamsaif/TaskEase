@@ -88,10 +88,11 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+// ambil id
   const { id } = await context.params;
   const userId = Number(id);
   const body = await request.json();
-
+// cek apakah id valid
   if (isNaN(userId)) {
     return NextResponse.json(
       { success: false, message: "ID tidak valid" },
@@ -99,20 +100,21 @@ export async function PUT(
     );
   }
 
- 
+//  cek apakah user ada
   const checkUser = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true }
   });
-
+// jika user tidak ada
   if (!checkUser) {
+    // jika user tidak ada
     return NextResponse.json(
       { success: false, message: "User tidak ditemukan" },
       { status: 404 }
     );
   }
 
- 
+//  cek apakah email sudah digunakan
   const checkEmail = await prisma.user.findFirst({
     where: {
       email: body.email,
@@ -120,14 +122,14 @@ export async function PUT(
     },
     select: { id: true }
   });
-
+// jika email sudah digunakan
   if (checkEmail) {
     return NextResponse.json(
       { success: false, message: "Email sudah digunakan user lain" },
       { status: 400 }
     );
   }
-
+// jika ada maka update user
   const updated = await prisma.user.update({
     where: { id: userId },
     data: {
