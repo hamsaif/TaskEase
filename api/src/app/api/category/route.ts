@@ -28,29 +28,32 @@ export async function GET() {
 
 // service create category
 export async function POST(request: NextRequest) {
+// ambil data
   try {
     const body = await request.json();
     const { name, color, userId } = body;
-
+    // cek data
     if (!name || !userId) {
+        // jika data tidak ada
       return NextResponse.json(
         { success: false, message: "Nama & User wajib diisi" },
         { status: 400 }
       );
     }
 
-
+    // cek apakah user ada
     const user = await prisma.user.findUnique({
+    // jika user ada
       where: { id: Number(userId) }
     });
-
+    // jika user tidak ada
     if (!user) {
       return NextResponse.json(
         { success: false, message: "User tidak ditemukan" },
         { status: 404 }
       );
     }
-
+    // buat kategori
     const category = await prisma.category.create({
       data: {
         name,
@@ -58,13 +61,14 @@ export async function POST(request: NextRequest) {
         userId: Number(userId)
       }
     });
-
+    // jika berhasil
     return NextResponse.json({
       success: true,
       message: "Kategori berhasil ditambahkan",
       data: category
     });
 
+    // jika error
   } catch {
     return NextResponse.json(
       { success: false, message: "Gagal menambah kategori" },
