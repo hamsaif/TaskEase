@@ -3,101 +3,110 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
+
+
 // ambil satu user
-export const GET = async (
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) => {
-    const id = Number(params.id);
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
 
-    const user = await prisma.user.findUnique({
-        where: { id},
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            createdAt: true
-        }
-    });
+  const userId = Number(id);
 
-    if (!user) {
-        return NextResponse.json({
-            message: "User tidak ditemukan",
-            success: false
-        }, { status: 404 });
-    }
+  if (isNaN(userId)) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "ID tidak valid"
+      },
+      { status: 400 }
+    );
+  }
 
-    return NextResponse.json({
-        success: true,
-        data: user
-    });
-};
+  const user = await prisma.user.findUnique({
+    where: { id: userId }
+  });
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "User tidak ditemukan"
+      },
+      { status: 404 }
+    );
+  }
+
+  return NextResponse.json({
+    success: true,
+    data: user
+  });
+}
+
 
 // service delete user
-export const DELETE = async (
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) => {
-    const id = Number(params.id);
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
+  const id = Number(context.params.id);
 
-    const check = await prisma.user.findUnique({
-        where: { id },
-        select: { id: true }
-    });
+  if (isNaN(id)) {
+    return NextResponse.json(
+      { success: false, message: "ID tidak valid" },
+      { status: 400 }
+    );
+  }
 
-    if (!check) {
-        return NextResponse.json({
-            message: "User gagal dihapus, id tidak ditemukan",
-            success: false
-        }, { status: 404 });
-    }
+  await prisma.user.delete({ where: { id } });
 
-    await prisma.user.delete({
-        where: { id }
-    });
-
-    return NextResponse.json({
-        message: "User berhasil dihapus",
-        success: true
-    });
-};
+  return NextResponse.json({
+    success: true,
+    message: "User berhasil dihapus",
+  });
+}
 
 // service update user
-export const PUT = async (
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) => {
-    const id = Number(params.id);
-    const body = await request.json();
+export async function PUT(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
+  const id = Number(context.params.id);
+  const body = await request.json();
 
-    // Cek email sudah dipakai user lain
-    const checkEmail = await prisma.user.findFirst({
-        where: {
-            email: body.email,
-            id: { not: id }
-        },
-        select: { id: true }
-    });
+  if (isNaN(id)) {
+    return NextResponse.json(
+      { success: false, message: "ID tidak valid" },
+      { status: 400 }
+    );
+  }
 
-    if (checkEmail) {
-        return NextResponse.json({
-            message: "Email sudah digunakan user lain",
-            success: false
-        }, { status: 400 });
-    }
+  const checkEmail = await prisma.user.findFirst({
+    where: {
+      email: body.email,
+      id: { not: id },
+    },
+  });
 
-    const updated = await prisma.user.update({
-        where: { id },
-        data: {
-            name: body.name,
-            email: body.email,
-            password: body.password
-        }
-    });
+  if (checkEmail) {
+    return NextResponse.json(
+      { success: false, message: "Email sudah digunakan user lain" },
+      { status: 400 }
+    );
+  }
 
-    return NextResponse.json({
-        message: "User berhasil diupdate",
-        success: true,
-        data: updated
-    });
-};
+  const updated = await prisma.user.update({
+    where: { id },
+    data: {
+      name: body.name,
+      email: body.email,
+      password: body.password,
+    },
+  });
+
+  return NextResponse.json({
+    success: true,
+    data: updated,
+  });
+}
