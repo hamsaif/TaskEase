@@ -10,11 +10,13 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+    // ambil id
   const { id } = await context.params;
 
   const userId = Number(id);
 // cek apakah id valid
   if (isNaN(userId)) {
+    // jika id tidak valid
     return NextResponse.json(
       {
         success: false,
@@ -27,7 +29,7 @@ export async function GET(
   const user = await prisma.user.findUnique({
     where: { id: userId }
   });
-
+// jika user tidak ada
   if (!user) {
     return NextResponse.json(
       {
@@ -37,7 +39,7 @@ export async function GET(
       { status: 404 }
     );
   }
-
+// jika ada maka kembalikan user
   return NextResponse.json({
     success: true,
     data: user
@@ -50,10 +52,12 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+// ambil id
   const { id } = await context.params;
   const userId = Number(id);
 // cek apakah id valid
   if (isNaN(userId)) {
+    // jika id tidak valid
     return NextResponse.json(
       { success: false, message: "ID tidak valid" },
       { status: 400 }
