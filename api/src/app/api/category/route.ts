@@ -25,3 +25,50 @@ export async function GET() {
     );
   }
 }
+
+// service create category
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { name, color, userId } = body;
+
+    if (!name || !userId) {
+      return NextResponse.json(
+        { success: false, message: "Nama & User wajib diisi" },
+        { status: 400 }
+      );
+    }
+
+
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userId) }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "User tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        color,
+        userId: Number(userId)
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Kategori berhasil ditambahkan",
+      data: category
+    });
+
+  } catch {
+    return NextResponse.json(
+      { success: false, message: "Gagal menambah kategori" },
+      { status: 500 }
+    );
+  }
+}
