@@ -86,23 +86,39 @@ export async function DELETE(
 // service update user
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(context.params.id);
+  const { id } = await context.params;
+  const userId = Number(id);
   const body = await request.json();
 
-  if (isNaN(id)) {
+  if (isNaN(userId)) {
     return NextResponse.json(
       { success: false, message: "ID tidak valid" },
       { status: 400 }
     );
   }
 
+ 
+  const checkUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true }
+  });
+
+  if (!checkUser) {
+    return NextResponse.json(
+      { success: false, message: "User tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
+ 
   const checkEmail = await prisma.user.findFirst({
     where: {
       email: body.email,
-      id: { not: id },
+      id: { not: userId }
     },
+    select: { id: true }
   });
 
   if (checkEmail) {
@@ -113,16 +129,17 @@ export async function PUT(
   }
 
   const updated = await prisma.user.update({
-    where: { id },
+    where: { id: userId },
     data: {
       name: body.name,
       email: body.email,
-      password: body.password,
-    },
+      password: body.password
+    }
   });
 
   return NextResponse.json({
     success: true,
-    data: updated,
+    message: "User berhasil diupdate",
+    data: updated
   });
 }
