@@ -13,7 +13,7 @@ export async function GET(
   const { id } = await context.params;
 
   const userId = Number(id);
-
+// cek apakah id valid
   if (isNaN(userId)) {
     return NextResponse.json(
       {
@@ -23,7 +23,7 @@ export async function GET(
       { status: 400 }
     );
   }
-
+// cek apakah user ada
   const user = await prisma.user.findUnique({
     where: { id: userId }
   });
