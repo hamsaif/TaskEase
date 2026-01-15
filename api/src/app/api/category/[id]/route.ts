@@ -36,3 +36,31 @@ export async function GET(
     data: category
   });
 }
+
+// service delete category
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+    // ambil id
+  const { id } = await context.params;
+  const categoryId = Number(id);
+    // cek apakah id valid
+  if (isNaN(categoryId)) {
+    return NextResponse.json(
+        // jika id tidak valid
+      { success: false, message: "ID tidak valid" },
+      { status: 400 }
+    );
+  }
+//   cek apakah category ada
+  await prisma.category.delete({
+    where: { id: categoryId }
+  });
+// jika category ada
+  return NextResponse.json({
+    success: true,
+    message: "Kategori berhasil dihapus"
+  });
+}
+
