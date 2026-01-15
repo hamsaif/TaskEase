@@ -42,25 +42,36 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-    // ambil id
+    
   const { id } = await context.params;
   const categoryId = Number(id);
-    // cek apakah id valid
+
   if (isNaN(categoryId)) {
     return NextResponse.json(
-        // jika id tidak valid
       { success: false, message: "ID tidak valid" },
       { status: 400 }
     );
   }
-//   cek apakah category ada
+
+  const check = await prisma.category.findUnique({
+    where: { id: categoryId },
+    select: { id: true }
+  });
+
+  if (!check) {
+    return NextResponse.json(
+      { success: false, message: "Category tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
   await prisma.category.delete({
     where: { id: categoryId }
   });
-// jika category ada
+
   return NextResponse.json({
     success: true,
-    message: "Kategori berhasil dihapus"
+    message: "Category berhasil dihapus"
   });
 }
 
