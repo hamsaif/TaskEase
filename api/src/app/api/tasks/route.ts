@@ -34,30 +34,38 @@ export async function GET() {
 // create task
 export async function POST(request: NextRequest) {
   try {
-    // ambil data
     const body = await request.json();
     const {
       title,
       description,
-      priority,
+      priority = "medium",
       dueDate,
       userId,
       categoryId
     } = body;
-    // cek data
+
+    // validasi wajib
     if (!title || !userId) {
-        // jika data tidak ada
       return NextResponse.json(
         { success: false, message: "Title & User wajib diisi" },
         { status: 400 }
       );
     }
 
+    const userIdNumber = Number(userId);
+
+    if (isNaN(userIdNumber)) {
+      return NextResponse.json(
+        { success: false, message: "User ID tidak valid" },
+        { status: 400 }
+      );
+    }
+
     // cek user
     const user = await prisma.user.findUnique({
-      where: { id: Number(userId) }
+      where: { id: userIdNumber }
     });
-    // jika user tidak ada
+
     if (!user) {
       return NextResponse.json(
         { success: false, message: "User tidak ditemukan" },
@@ -65,12 +73,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // cek category (jika ada)
+    // cek title task sudah ada
+    const checkTitle = await prisma.task.findFirst({
+      where: { title }
+    });
+
+    if (checkTitle) {
+      return NextResponse.json(
+        { success: false, message: "Title task sudah digunakan" },
+        { status: 400 }
+      );
+    }
+
+    // cek category jika ada
+    let categoryIdNumber: number | null = null;
+
     if (categoryId) {
+      categoryIdNumber = Number(categoryId);
+
+      if (isNaN(categoryIdNumber)) {
+        return NextResponse.json(
+          { success: false, message: "Category ID tidak valid" },
+          { status: 400 }
+        );
+      }
+
       const category = await prisma.category.findUnique({
-        where: { id: Number(categoryId) }
+        where: { id: categoryIdNumber }
       });
-    //   jika category tidak ada
+
       if (!category) {
         return NextResponse.json(
           { success: false, message: "Kategori tidak ditemukan" },
@@ -79,14 +110,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // create task
     const task = await prisma.task.create({
       data: {
         title,
         description,
         priority,
         dueDate: dueDate ? new Date(dueDate) : null,
-        userId: Number(userId),
-        categoryId: categoryId ? Number(categoryId) : null
+        userId: userIdNumber,
+        categoryId: categoryIdNumber
       }
     });
 
@@ -95,8 +127,9 @@ export async function POST(request: NextRequest) {
       message: "Task berhasil ditambahkan",
       data: task
     });
-    // jika error
-  } catch {
+
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { success: false, message: "Gagal menambah task" },
       { status: 500 }
