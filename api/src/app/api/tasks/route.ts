@@ -17,12 +17,13 @@ export async function GET() {
         subtasks: true
       }
     });
-
+    
     return NextResponse.json({
       success: true,
       data: tasks
     });
   } catch {
+    // jika error
     return NextResponse.json(
       { success: false, message: "Gagal mengambil data task" },
       { status: 500 }
@@ -33,6 +34,7 @@ export async function GET() {
 // create task
 export async function POST(request: NextRequest) {
   try {
+    // ambil data
     const body = await request.json();
     const {
       title,
@@ -42,8 +44,9 @@ export async function POST(request: NextRequest) {
       userId,
       categoryId
     } = body;
-
+    // cek data
     if (!title || !userId) {
+        // jika data tidak ada
       return NextResponse.json(
         { success: false, message: "Title & User wajib diisi" },
         { status: 400 }
@@ -54,7 +57,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: Number(userId) }
     });
-
+    // jika user tidak ada
     if (!user) {
       return NextResponse.json(
         { success: false, message: "User tidak ditemukan" },
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
       const category = await prisma.category.findUnique({
         where: { id: Number(categoryId) }
       });
-
+    //   jika category tidak ada
       if (!category) {
         return NextResponse.json(
           { success: false, message: "Kategori tidak ditemukan" },
@@ -92,7 +95,7 @@ export async function POST(request: NextRequest) {
       message: "Task berhasil ditambahkan",
       data: task
     });
-
+    // jika error
   } catch {
     return NextResponse.json(
       { success: false, message: "Gagal menambah task" },
