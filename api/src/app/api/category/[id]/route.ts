@@ -64,3 +64,33 @@ export async function DELETE(
   });
 }
 
+// service update category
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  const categoryId = Number(id);
+  const body = await request.json();
+
+  if (isNaN(categoryId)) {
+    return NextResponse.json(
+      { success: false, message: "ID tidak valid" },
+      { status: 400 }
+    );
+  }
+
+  const updated = await prisma.category.update({
+    where: { id: categoryId },
+    data: {
+      name: body.name,
+      color: body.color
+    }
+  });
+
+  return NextResponse.json({
+    success: true,
+    message: "Kategori berhasil diupdate",
+    data: updated
+  });
+}
