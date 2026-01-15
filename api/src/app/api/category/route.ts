@@ -28,48 +28,70 @@ export async function GET() {
 
 // service create category
 export async function POST(request: NextRequest) {
-// ambil data
+
   try {
     const body = await request.json();
     const { name, color, userId } = body;
-    // cek data
+
+    // validasi data wajib
     if (!name || !userId) {
-        // jika data tidak ada
+
       return NextResponse.json(
         { success: false, message: "Nama & User wajib diisi" },
         { status: 400 }
       );
     }
 
-    // cek apakah user ada
+    const userIdNumber = Number(userId);
+
+    if (isNaN(userIdNumber)) {
+      return NextResponse.json(
+        { success: false, message: "User ID tidak valid" },
+        { status: 400 }
+      );
+    }
+
+    // cek user ada
     const user = await prisma.user.findUnique({
-    // jika user ada
-      where: { id: Number(userId) }
+      where: { id: userIdNumber }
     });
-    // jika user tidak ada
+
     if (!user) {
       return NextResponse.json(
         { success: false, message: "User tidak ditemukan" },
         { status: 404 }
       );
     }
-    // buat kategori
+
+    // cek nama category sudah ada
+    const checkCategory = await prisma.category.findFirst({
+      where: { name }
+    });
+
+    if (checkCategory) {
+      return NextResponse.json(
+        { success: false, message: "Nama category sudah digunakan" },
+        { status: 400 }
+      );
+    }
+
+    // create category
     const category = await prisma.category.create({
       data: {
         name,
         color,
-        userId: Number(userId)
+        userId: userIdNumber
       }
     });
-    // jika berhasil
+
     return NextResponse.json({
       success: true,
       message: "Kategori berhasil ditambahkan",
       data: category
     });
 
-    // jika error
-  } catch {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { success: false, message: "Gagal menambah kategori" },
       { status: 500 }
