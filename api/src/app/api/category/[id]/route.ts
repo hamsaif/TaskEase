@@ -42,7 +42,7 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-    
+
   const { id } = await context.params;
   const categoryId = Number(id);
 
@@ -91,17 +91,42 @@ export async function PUT(
     );
   }
 
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId }
+  });
+
+  if (!category) {
+    return NextResponse.json(
+      { success: false, message: "Category tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
+  // cek nama category unik
+  if (body.name && body.name !== category.name) {
+    const checkName = await prisma.category.findFirst({
+      where: {
+        name: body.name,
+        id: { not: categoryId }
+      }
+    });
+
+    if (checkName) {
+      return NextResponse.json(
+        { success: false, message: "Nama category sudah digunakan" },
+        { status: 400 }
+      );
+    }
+  }
+
   const updated = await prisma.category.update({
     where: { id: categoryId },
-    data: {
-      name: body.name,
-      color: body.color
-    }
+    data: { name: body.name }
   });
 
   return NextResponse.json({
     success: true,
-    message: "Kategori berhasil diupdate",
+    message: "Category berhasil diupdate",
     data: updated
   });
 }
