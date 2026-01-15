@@ -68,3 +68,63 @@ export async function DELETE(
     message: "Task berhasil dihapus"
   });
 }
+
+// service update task
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  const taskId = Number(id);
+  const body = await request.json();
+
+  if (isNaN(taskId)) {
+    return NextResponse.json(
+      { success: false, message: "ID tidak valid" },
+      { status: 400 }
+    );
+  }
+
+  const task = await prisma.task.findUnique({
+    where: { id: taskId }
+  });
+
+  if (!task) {
+    return NextResponse.json(
+      { success: false, message: "Task tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
+  // cek title unik
+  if (body.title && body.title !== task.title) {
+    const checkTitle = await prisma.task.findFirst({
+      where: {
+        title: body.title,
+        id: { not: taskId }
+      }
+    });
+
+    if (checkTitle) {
+      return NextResponse.json(
+        { success: false, message: "Judul task sudah digunakan" },
+        { status: 400 }
+      );
+    }
+  }
+
+  const updated = await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      title: body.title,
+      description: body.description,
+      categoryId: body.categoryId
+    }
+  });
+
+  return NextResponse.json({
+    success: true,
+    message: "Task berhasil diupdate",
+    data: updated
+  });
+}
