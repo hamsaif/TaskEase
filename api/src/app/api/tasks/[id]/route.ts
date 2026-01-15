@@ -32,3 +32,39 @@ export async function GET(
   return NextResponse.json({ success: true, data: task });
 }
 
+// service delete task
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  const taskId = Number(id);
+
+  if (isNaN(taskId)) {
+    return NextResponse.json(
+      { success: false, message: "ID tidak valid" },
+      { status: 400 }
+    );
+  }
+
+  const check = await prisma.task.findUnique({
+    where: { id: taskId },
+    select: { id: true }
+  });
+
+  if (!check) {
+    return NextResponse.json(
+      { success: false, message: "Task tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+
+  await prisma.task.delete({
+    where: { id: taskId }
+  });
+
+  return NextResponse.json({
+    success: true,
+    message: "Task berhasil dihapus"
+  });
+}
