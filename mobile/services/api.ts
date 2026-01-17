@@ -1,6 +1,6 @@
 // API service
-// services/api.ts
-const BASE_URL = "http://localhost:3000/api";
+
+const BASE_URL = "http://10.0.2.2:3000/api";
 
 export async function apiFetch(
   url: string,
@@ -8,11 +8,10 @@ export async function apiFetch(
 ) {
   const res = await fetch(`${BASE_URL}${url}`, {
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    ...options
+    ...options,
   });
 
   return res.json();
 }
-
