@@ -245,6 +245,14 @@ const handleDelete = async () => {
 }
 
 const styles = StyleSheet.create({
+    actionButtonEdit: {
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#0a7ea4',
+  },
+  actionButtonTextEdit: {
+    color: '#0a7ea4',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
