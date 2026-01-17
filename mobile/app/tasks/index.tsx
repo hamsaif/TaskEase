@@ -1,205 +1,272 @@
-import { useEffect, useState } from "react";
-import { 
-  FlatList, 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl
-} from "react-native";
-import { useRouter } from "expo-router";
-import { TaskService } from "@/services/task.service";
-import { Task } from "@/types/task";
-import { TaskCard } from "@/components/TaskCard";
-
-export default function TaskList() {
-  const router = useRouter();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
-    try {
-      const res = await TaskService.getAll();
-      if (res.success) {
-        setTasks(res.data || []);
-      }
-    } catch (error) {
-      console.error("Error loading tasks:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadTasks();
-  };
-
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'pending') return !task.isCompleted;
-    if (filter === 'completed') return task.isCompleted;
-    return true;
-  });
-
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0a7ea4" />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterTab, filter === 'all' && styles.filterTabActive]}
-          onPress={() => setFilter('all')}
-        >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
-            Semua ({tasks.length})
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.filterTab, filter === 'pending' && styles.filterTabActive]}
-          onPress={() => setFilter('pending')}
-        >
-          <Text style={[styles.filterText, filter === 'pending' && styles.filterTextActive]}>
-            Pending ({tasks.filter(t => !t.isCompleted).length})
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.filterTab, filter === 'completed' && styles.filterTabActive]}
-          onPress={() => setFilter('completed')}
-        >
-          <Text style={[styles.filterText, filter === 'completed' && styles.filterTextActive]}>
-            Selesai ({tasks.filter(t => t.isCompleted).length})
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Task List */}
-      {filteredTasks.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyText}>
-            {filter === 'all' ? 'Belum ada task' : 
-             filter === 'pending' ? 'Tidak ada task pending' : 
-             'Tidak ada task yang selesai'}
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredTasks}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <TaskCard task={item} />}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      )}
-
+// Ganti bagian FAB (baris 114-123):
       {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => {
-          // TODO: Navigate to create task screen
-          console.log("Create new task");
-        }}
+        onPress={() => router.push('/tasks/create')}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-    </View>
+
+========================================
+5.Create Category Form
+File: mobile/app/categories/create.tsx
+import { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { CategoryService } from "@/services/category.service";
+
+const PRESET_COLORS = [
+  "#ef4444", "#f59e0b", "#10b981", "#3b82f6",
+  "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"
+];
+
+export default function CreateCategory() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [userId, setUserId] = useState(1); // Hardcode untuk sementara
+
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      Alert.alert("Error", "Nama kategori wajib diisi");
+      return;
+    }
+
+    if (!userId) {
+      Alert.alert("Error", "User ID tidak valid");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const categoryData = {
+        name: name.trim(),
+        color: selectedColor || undefined,
+        userId,
+      };
+
+      const res = await CategoryService.create(categoryData);
+
+      if (res.success) {
+        Alert.alert("Berhasil", "Kategori berhasil dibuat", [
+          { text: "OK", onPress: () => router.back() }
+        ]);
+      } else {
+        Alert.alert("Error", res.message || "Gagal membuat kategori");
+      }
+    } catch (error: any) {
+      console.error("Error creating category:", error);
+      Alert.alert("Error", error.message || "Terjadi kesalahan");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Buat Kategori Baru</Text>
+      </View>
+
+      <View style={styles.form}>
+        <View style={styles.field}>
+          <Text style={styles.label}>Nama Kategori *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Masukkan nama kategori"
+            value={name}
+            onChangeText={setName}
+            editable={!loading}
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.label}>Warna (opsional)</Text>
+          <View style={styles.colorContainer}>
+            {PRESET_COLORS.map((color) => (
+              <TouchableOpacity
+                key={color}
+                style={[
+                  styles.colorOption,
+                  selectedColor === color && styles.colorOptionActive,
+                  { backgroundColor: color }
+                ]}
+                onPress={() => setSelectedColor(selectedColor === color ? null : color)}
+                disabled={loading}
+              >
+                {selectedColor === color && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.hint}>Pilih warna untuk kategori ini</Text>
+        </View>
+
+        <View style={styles.preview}>
+          <Text style={styles.previewLabel}>Preview:</Text>
+          <View style={[
+            styles.previewChip,
+            selectedColor && { backgroundColor: selectedColor }
+          ]}>
+            <Text style={[
+              styles.previewText,
+              selectedColor && styles.previewTextWhite
+            ]}>
+              {name || "Nama Kategori"}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[styles.button, styles.buttonPrimary]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Buat Kategori</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.buttonSecondary]}
+            onPress={() => router.back()}
+            disabled={loading}
+          >
+            <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Batal</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb",
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  header: {
+    backgroundColor: "#fff",
+    padding: 20,
+    paddingTop: 40,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb",
   },
-  filterTab: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#111827",
   },
-  filterTabActive: {
-    backgroundColor: '#0a7ea4',
+  form: {
+    padding: 20,
   },
-  filterText: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
+  field: {
+    marginBottom: 24,
   },
-  filterTextActive: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  listContent: {
-    padding: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyText: {
+  label: {
     fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
   },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#0a7ea4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
+  input: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: "#111827",
   },
-  fabText: {
-    fontSize: 32,
-    color: '#fff',
-    fontWeight: '300',
+  colorContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  colorOption: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 3,
+    borderColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  colorOptionActive: {
+    borderColor: "#111827",
+    transform: [{ scale: 1.1 }],
+  },
+  checkmark: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  hint: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginTop: 8,
+  },
+  preview: {
+    marginTop: 8,
+    marginBottom: 24,
+  },
+  previewLabel: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 8,
+  },
+  previewChip: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#e5e7eb",
+  },
+  previewText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  previewTextWhite: {
+    color: "#fff",
+  },
+  actions: {
+    marginTop: 8,
+    gap: 12,
+  },
+  button: {
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonPrimary: {
+    backgroundColor: "#0a7ea4",
+  },
+  buttonSecondary: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  buttonTextSecondary: {
+    color: "#374151",
   },
 });
