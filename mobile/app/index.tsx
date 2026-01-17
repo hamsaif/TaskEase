@@ -33,6 +33,10 @@ export default function Home() {
     }
   };
 
+  const completedTasks = tasks.filter(t => t.isCompleted).length;
+  const pendingTasks = tasks.filter(t => !t.isCompleted).length;
+  const highPriorityTasks = tasks.filter(t => t.priority === 'high' && !t.isCompleted).length;
+
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -56,17 +60,23 @@ export default function Home() {
         </View>
         
         <View style={[styles.statCard, styles.statCardSuccess]}>
-
+          <Text style={styles.statNumber}>{completedTasks}</Text>
           <Text style={styles.statLabel}>Selesai</Text>
         </View>
         
         <View style={[styles.statCard, styles.statCardWarning]}>
-
+          <Text style={styles.statNumber}>{pendingTasks}</Text>
           <Text style={styles.statLabel}>Pending</Text>
         </View>
       </View>
 
-
+      {highPriorityTasks > 0 && (
+        <View style={styles.alertCard}>
+          <Text style={styles.alertText}>
+            ⚠️ Kamu punya {highPriorityTasks} tugas dengan prioritas tinggi!
+          </Text>
+        </View>
+      )}
 
       {/* Quick Actions */}
       <View style={styles.section}>
@@ -115,7 +125,12 @@ export default function Home() {
               onPress={() => router.push(`/tasks/${task.id}`)}
             >
               <View style={styles.taskItemContent}>
-                
+                <Text style={[
+                  styles.taskItemTitle,
+                  task.isCompleted && styles.taskItemCompleted
+                ]}>
+                  {task.isCompleted ? '✓ ' : ''}{task.title}
+                </Text>
                 {task.category && (
                   <Text style={styles.taskItemCategory}>
                     {task.category.name}
@@ -123,7 +138,11 @@ export default function Home() {
                 )}
               </View>
               <View style={[
-               
+                styles.priorityIndicator,
+                { backgroundColor: 
+                  task.priority === 'high' ? '#ef4444' :
+                  task.priority === 'medium' ? '#f59e0b' : '#10b981'
+                }
               ]} />
             </TouchableOpacity>
           ))
