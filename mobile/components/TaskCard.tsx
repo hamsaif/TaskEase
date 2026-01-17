@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 
 export function TaskCard({ task }: any) {
   const router = useRouter();
+  router.push(`/tasks/${task.id}`);
 
   return (
     <Pressable onPress={() => router.push(`/tasks/${task.id}`)}>
