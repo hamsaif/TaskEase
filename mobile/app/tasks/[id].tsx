@@ -1,4 +1,5 @@
-import { View, Text, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { TaskService } from "@/services/task.service";
@@ -38,30 +39,49 @@ export default function TaskDetail() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
     const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', { 
+    return date.toLocaleDateString('id-ID', {
       weekday: 'long',
-      day: 'numeric', 
+      day: 'numeric',
       month: 'long',
       year: 'numeric'
     });
   };
 
-  const toggleComplete = async () => {
-    if (!task) return;
-    
-    try {
-      const res = await TaskService.update(task.id, {
-        ...task,
-        isCompleted: !task.isCompleted
-      });
-      
-      if (res.success) {
-        setTask(res.data);
+  // Ganti fungsi toggleComplete dan tambahkan fungsi baru
+const handleDelete = async () => {
+  if (!task) return;
+
+  Alert.alert(
+    "Hapus Task",
+    "Apakah kamu yakin ingin menghapus task ini? Tindakan ini tidak dapat dibatalkan.",
+    [
+      {
+        text: "Batal",
+        style: "cancel"
+      },
+      {
+        text: "Hapus",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const res = await TaskService.delete(task.id);
+            if (res.success) {
+              Alert.alert("Berhasil", "Task berhasil dihapus", [
+                { text: "OK", onPress: () => router.back() }
+              ]);
+            } else {
+              Alert.alert("Error", res.message || "Gagal menghapus task");
+            }
+          } catch (error) {
+            console.error("Error deleting task:", error);
+            Alert.alert("Error", "Terjadi kesalahan saat menghapus task");
+          }
+        }
       }
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
+    ]
+  );
+};
+
 
   if (loading) {
     return (
@@ -75,7 +95,7 @@ export default function TaskDetail() {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>Task tidak ditemukan</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -104,7 +124,7 @@ export default function TaskDetail() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Detail</Text>
-        
+
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Prioritas</Text>
           <View style={[
