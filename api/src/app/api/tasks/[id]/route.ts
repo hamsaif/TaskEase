@@ -112,7 +112,19 @@ export async function PUT(
       );
     }
   }
+  // cek kategori
+  if (body.categoryId) {
+  const category = await prisma.category.findUnique({
+    where: { id: Number(body.categoryId) }
+  });
 
+  if (!category) {
+    return NextResponse.json(
+      { success: false, message: "Kategori tidak ditemukan" },
+      { status: 404 }
+    );
+  }
+}
   const updated = await prisma.task.update({
     where: { id: taskId },
     data: {
