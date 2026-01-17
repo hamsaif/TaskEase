@@ -176,25 +176,40 @@ const handleDelete = async () => {
       </View>
 
       {task.subtasks && task.subtasks.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Subtasks</Text>
-          {task.subtasks.map((subtask) => (
-            <View key={subtask.id} style={styles.subtaskItem}>
-              <View style={[
-                styles.checkbox,
-                subtask.isCompleted && styles.checkboxChecked
-              ]}>
-                {subtask.isCompleted && <Text style={styles.checkmark}>✓</Text>}
-              </View>
-              <Text style={[
-                styles.subtaskText,
-                subtask.isCompleted && styles.subtaskCompleted
-              ]}>
-                {subtask.name}
-              </Text>
-            </View>
-          ))}
-        </View>
+        <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.actionButtonEdit]}
+          onPress={() => router.push(`/tasks/edit/${task.id}`)}
+        >
+          <Text style={[styles.actionButtonText, styles.actionButtonTextEdit]}>
+            ✏️ Edit Task
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.actionButton,
+            task.isCompleted ? styles.actionButtonSecondary : styles.actionButtonPrimary
+          ]}
+          onPress={toggleComplete}
+        >
+          <Text style={[
+            styles.actionButtonText,
+            task.isCompleted && styles.actionButtonTextSecondary
+          ]}>
+            {task.isCompleted ? 'Tandai Belum Selesai' : 'Tandai Selesai'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.actionButtonDanger]}
+          onPress={handleDelete}
+        >
+          <Text style={[styles.actionButtonText, styles.actionButtonTextDanger]}>
+            🗑️ Hapus Task
+          </Text>
+        </TouchableOpacity>
+      </View>
       )}
 
       <View style={styles.actions}>
