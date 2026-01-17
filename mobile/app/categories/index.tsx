@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
   ActivityIndicator,
-  TouchableOpacity 
+  TouchableOpacity,
+  Alert,
+  RefreshControl
 } from "react-native";
+import { useRouter } from "expo-router";
 import { CategoryService } from "@/services/category.service";
 import { Category } from "@/types/category";
 
 export default function CategoriesScreen() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -28,7 +33,48 @@ export default function CategoriesScreen() {
       console.error("Error loading categories:", error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadCategories();
+  };
+
+  const handleDelete = async (category: Category) => {
+    Alert.alert(
+      "Hapus Kategori",
+      `Apakah kamu yakin ingin menghapus kategori "${category.name}"? Tindakan ini tidak dapat dibatalkan.`,
+      [
+        {
+          text: "Batal",
+          style: "cancel"
+        },
+        {
+          text: "Hapus",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await CategoryService.delete(category.id);
+              if (res.success) {
+                Alert.alert("Berhasil", "Kategori berhasil dihapus");
+                loadCategories(); // Refresh list
+              } else {
+                Alert.alert("Error", res.message || "Gagal menghapus kategori");
+              }
+            } catch (error) {
+              console.error("Error deleting category:", error);
+              Alert.alert("Error", "Terjadi kesalahan saat menghapus kategori");
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEdit = (category: Category) => {
+    router.push(`/categories/edit/${category.id}`);
   };
 
   if (loading) {
@@ -65,18 +111,32 @@ export default function CategoriesScreen() {
                   Dibuat {new Date(item.createdAt).toLocaleDateString('id-ID')}
                 </Text>
               </View>
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleEdit(item)}
+                >
+                  <Text style={styles.editIcon}>✏️</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleDelete(item)}
+                >
+                  <Text style={styles.deleteIcon}>🗑️</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => {
-          // TODO: Navigate to create category screen
-          console.log("Create new category");
-        }}
+        onPress={() => router.push('/categories/create')}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
@@ -129,6 +189,19 @@ const styles = StyleSheet.create({
   categoryDate: {
     fontSize: 12,
     color: '#6b7280',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionButton: {
+    padding: 8,
+  },
+  editIcon: {
+    fontSize: 20,
+  },
+  deleteIcon: {
+    fontSize: 20,
   },
   emptyState: {
     flex: 1,
