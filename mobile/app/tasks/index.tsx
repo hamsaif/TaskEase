@@ -113,20 +113,13 @@ export default function CreateCategory() {
           <Text style={styles.hint}>Pilih warna untuk kategori ini</Text>
         </View>
 
-        <View style={styles.preview}>
-          <Text style={styles.previewLabel}>Preview:</Text>
-          <View style={[
-            styles.previewChip,
-            selectedColor && { backgroundColor: selectedColor }
-          ]}>
-            <Text style={[
-              styles.previewText,
-              selectedColor && styles.previewTextWhite
-            ]}>
-              {name || "Nama Kategori"}
-            </Text>
-          </View>
-        </View>
+          {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/tasks/create')}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
 
         <View style={styles.actions}>
           <TouchableOpacity
