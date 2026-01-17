@@ -1,4 +1,4 @@
-// app/index.tsx
+
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { TaskService } from "@/services/task.service";
