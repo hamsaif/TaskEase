@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
+import { CategoryService } from "@/services/category.service";
+import { TaskService } from "@/services/task.service";
+import { Category } from "@/types/category";
+import { Task } from "@/types/task";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
   ActivityIndicator,
   Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { TaskService } from "@/services/task.service";
-import { CategoryService } from "@/services/category.service";
-import { Task } from "@/types/task";
-import { Category } from "@/types/category";
 
 export default function EditTask() {
   const router = useRouter();
@@ -46,11 +46,11 @@ export default function EditTask() {
         setTitle(taskData.title || "");
         setDescription(taskData.description || "");
         setPriority(taskData.priority || "medium");
-        setDueDate(taskData.dueDate ? new Date(taskData.dueDate).toISOString().split('T')[0] : "");
+        setDueDate(taskData.dueDate || "");
         setCategoryId(taskData.categoryId || null);
       } else {
         Alert.alert("Error", "Task tidak ditemukan", [
-          { text: "OK", onPress: () => router.back() }
+          { text: "OK", onPress: () => router.back() },
         ]);
       }
     } catch (error) {
@@ -98,7 +98,7 @@ export default function EditTask() {
 
       if (res.success) {
         Alert.alert("Berhasil", "Task berhasil diupdate", [
-          { text: "OK", onPress: () => router.back() }
+          { text: "OK", onPress: () => router.back() },
         ]);
       } else {
         Alert.alert("Error", res.message || "Gagal mengupdate task");
@@ -177,18 +177,26 @@ export default function EditTask() {
                 onPress={() => setPriority(p)}
                 disabled={saving}
               >
-                <View style={[
-                  styles.radioCircle,
-                  priority === p && styles.radioCircleActive,
-                  priority === p && { backgroundColor:
-                    p === 'high' ? '#ef4444' :
-                    p === 'medium' ? '#f59e0b' : '#10b981'
-                  }
-                ]} />
-                <Text style={[
-                  styles.radioText,
-                  priority === p && styles.radioTextActive,
-                ]}>
+                <View
+                  style={[
+                    styles.radioCircle,
+                    priority === p && styles.radioCircleActive,
+                    priority === p && {
+                      backgroundColor:
+                        p === "high"
+                          ? "#ef4444"
+                          : p === "medium"
+                            ? "#f59e0b"
+                            : "#10b981",
+                    },
+                  ]}
+                />
+                <Text
+                  style={[
+                    styles.radioText,
+                    priority === p && styles.radioTextActive,
+                  ]}
+                >
                   {p.charAt(0).toUpperCase() + p.slice(1)}
                 </Text>
               </TouchableOpacity>
@@ -222,16 +230,22 @@ export default function EditTask() {
                     categoryId === cat.id && styles.categoryChipActive,
                     cat.color && { borderColor: cat.color },
                   ]}
-                  onPress={() => setCategoryId(categoryId === cat.id ? null : cat.id)}
+                  onPress={() =>
+                    setCategoryId(categoryId === cat.id ? null : cat.id)
+                  }
                   disabled={saving}
                 >
                   {cat.color && (
-                    <View style={[styles.colorDot, { backgroundColor: cat.color }]} />
+                    <View
+                      style={[styles.colorDot, { backgroundColor: cat.color }]}
+                    />
                   )}
-                  <Text style={[
-                    styles.categoryText,
-                    categoryId === cat.id && styles.categoryTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      styles.categoryText,
+                      categoryId === cat.id && styles.categoryTextActive,
+                    ]}
+                  >
                     {cat.name}
                   </Text>
                 </TouchableOpacity>
@@ -258,7 +272,9 @@ export default function EditTask() {
             onPress={() => router.back()}
             disabled={saving}
           >
-            <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Batal</Text>
+            <Text style={[styles.buttonText, styles.buttonTextSecondary]}>
+              Batal
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

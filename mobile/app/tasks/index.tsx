@@ -1,15 +1,4 @@
-// Ganti bagian FAB (baris 114-123):
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => router.push('/tasks/create')}
-      >
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
 
-========================================
-5.Create Category Form
-File: mobile/app/categories/create.tsx
 import { useState } from "react";
 import {
   View,
