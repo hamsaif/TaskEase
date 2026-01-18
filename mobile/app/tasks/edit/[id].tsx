@@ -1,23 +1,24 @@
-import { CategoryService } from "@/services/category.service";
-import { TaskService } from "@/services/task.service";
-import { Category } from "@/types/category";
-import { Task } from "@/types/task";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
+  View,
   Text,
+  StyleSheet,
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  View,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { TaskService } from "@/services/task.service";
+import { CategoryService } from "@/services/category.service";
+import { Task } from "@/types/task";
+import { Category } from "@/types/category";
 
 export default function EditTask() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [task, setTask] = useState<Task | null>(null);
@@ -30,14 +31,18 @@ export default function EditTask() {
   const [dueDate, setDueDate] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (id) {
-      loadTask();
-      loadCategories();
+  const loadCategories = useCallback(async () => {
+    try {
+      const res = await CategoryService.getAll();
+      if (res.success) {
+        setCategories(res.data || []);
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
     }
-  }, [id]);
+  }, []);
 
-  const loadTask = async () => {
+  const loadTask = useCallback(async () => {
     try {
       const res = await TaskService.getById(Number(id));
       if (res.success) {
@@ -46,7 +51,11 @@ export default function EditTask() {
         setTitle(taskData.title || "");
         setDescription(taskData.description || "");
         setPriority(taskData.priority || "medium");
-        setDueDate(taskData.dueDate || "");
+        setDueDate(
+          taskData.dueDate
+            ? new Date(taskData.dueDate).toISOString().split("T")[0]
+            : ""
+        );
         setCategoryId(taskData.categoryId || null);
       } else {
         Alert.alert("Error", "Task tidak ditemukan", [
@@ -59,18 +68,14 @@ export default function EditTask() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
 
-  const loadCategories = async () => {
-    try {
-      const res = await CategoryService.getAll();
-      if (res.success) {
-        setCategories(res.data || []);
-      }
-    } catch (error) {
-      console.error("Error loading categories:", error);
+  useEffect(() => {
+    if (id) {
+      loadTask();
+      loadCategories();
     }
-  };
+  }, [id, loadTask, loadCategories]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -123,10 +128,7 @@ export default function EditTask() {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>Task tidak ditemukan</Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Kembali</Text>
         </TouchableOpacity>
       </View>
@@ -186,8 +188,8 @@ export default function EditTask() {
                         p === "high"
                           ? "#ef4444"
                           : p === "medium"
-                            ? "#f59e0b"
-                            : "#10b981",
+                          ? "#f59e0b"
+                          : "#10b981",
                     },
                   ]}
                 />
