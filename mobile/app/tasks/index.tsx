@@ -1,24 +1,25 @@
-import { useEffect, useState } from "react";
-import {
-  FlatList,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl
-} from "react-native";
-import { useRouter } from "expo-router";
+import { TaskCard } from "@/components/TaskCard";
 import { TaskService } from "@/services/task.service";
 import { Task } from "@/types/task";
-import { TaskCard } from "@/components/TaskCard";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function TaskList() {
   const router = useRouter();
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  const [filter, setFilter] = useState<"all" | "pending" | "completed">("all");
 
   useEffect(() => {
     loadTasks();
@@ -43,9 +44,9 @@ export default function TaskList() {
     loadTasks();
   };
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'pending') return !task.isCompleted;
-    if (filter === 'completed') return task.isCompleted;
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "pending") return !task.isCompleted;
+    if (filter === "completed") return task.isCompleted;
     return true;
   });
 
@@ -62,29 +63,50 @@ export default function TaskList() {
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
-          style={[styles.filterTab, filter === 'all' && styles.filterTabActive]}
-          onPress={() => setFilter('all')}
+          style={[styles.filterTab, filter === "all" && styles.filterTabActive]}
+          onPress={() => setFilter("all")}
         >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
+          <Text
+            style={[
+              styles.filterText,
+              filter === "all" && styles.filterTextActive,
+            ]}
+          >
             Semua ({tasks.length})
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.filterTab, filter === 'pending' && styles.filterTabActive]}
-          onPress={() => setFilter('pending')}
+          style={[
+            styles.filterTab,
+            filter === "pending" && styles.filterTabActive,
+          ]}
+          onPress={() => setFilter("pending")}
         >
-          <Text style={[styles.filterText, filter === 'pending' && styles.filterTextActive]}>
-            Pending ({tasks.filter(t => !t.isCompleted).length})
+          <Text
+            style={[
+              styles.filterText,
+              filter === "pending" && styles.filterTextActive,
+            ]}
+          >
+            Pending ({tasks.filter((t) => !t.isCompleted).length})
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.filterTab, filter === 'completed' && styles.filterTabActive]}
-          onPress={() => setFilter('completed')}
+          style={[
+            styles.filterTab,
+            filter === "completed" && styles.filterTabActive,
+          ]}
+          onPress={() => setFilter("completed")}
         >
-          <Text style={[styles.filterText, filter === 'completed' && styles.filterTextActive]}>
-            Selesai ({tasks.filter(t => t.isCompleted).length})
+          <Text
+            style={[
+              styles.filterText,
+              filter === "completed" && styles.filterTextActive,
+            ]}
+          >
+            Selesai ({tasks.filter((t) => t.isCompleted).length})
           </Text>
         </TouchableOpacity>
       </View>
@@ -94,9 +116,11 @@ export default function TaskList() {
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📝</Text>
           <Text style={styles.emptyText}>
-            {filter === 'all' ? 'Belum ada task' :
-             filter === 'pending' ? 'Tidak ada task pending' :
-             'Tidak ada task yang selesai'}
+            {filter === "all"
+              ? "Belum ada task"
+              : filter === "pending"
+                ? "Tidak ada task pending"
+                : "Tidak ada task yang selesai"}
           </Text>
         </View>
       ) : (
@@ -114,10 +138,7 @@ export default function TaskList() {
       {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => {
-          // TODO: Navigate to create task screen
-          console.log("Create new task");
-        }}
+        onPress={() => router.push("/tasks/create")}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
@@ -128,48 +149,48 @@ export default function TaskList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   filterContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb",
   },
   filterTab: {
     flex: 1,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 4,
   },
   filterTabActive: {
-    backgroundColor: '#0a7ea4',
+    backgroundColor: "#0a7ea4",
   },
   filterText: {
     fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
+    color: "#6b7280",
+    fontWeight: "500",
   },
   filterTextActive: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   listContent: {
     padding: 16,
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 40,
   },
   emptyIcon: {
@@ -178,20 +199,20 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
+    color: "#6b7280",
+    textAlign: "center",
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     bottom: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#0a7ea4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    backgroundColor: "#0a7ea4",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -199,7 +220,7 @@ const styles = StyleSheet.create({
   },
   fabText: {
     fontSize: 32,
-    color: '#fff',
-    fontWeight: '300',
+    color: "#fff",
+    fontWeight: "300",
   },
 });
