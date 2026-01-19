@@ -1,0 +1,86 @@
+[33md4bb91b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfrontend[m[33m, [m[1;31morigin/frontend[m[33m)[m Upload filedokumentSi
+[33mb012239[m upload dokumentasi
+[33m4dc47f6[m menambahkan navigasi ke halaman tambah task dari daftar task
+[33m4f9a7cf[m missing depedency EditTask memakai useCallback
+[33m54e99b0[m memperbaiki eror
+[33m9940539[m Update Category List (tambah create, edit, delete)
+[33m1c49a26[m menambahkan halaman edit kategori
+[33m8510415[m Create Category Form
+[33ma55f8d9[m update task list
+[33m37366d9[m style(task): menambahkan style tombol edit task
+[33m6d4a67a[m update action statement
+[33mb6bef72[m chore: menghapus package-lock.json root dari tracking git
+[33m39f839d[m hapus package lock json yang sejajar dengan api dan mobile
+[33m7998aac[m Ganti fungsi toggleComplete dan tambahkan fungsi baru
+[33ma396eb2[m perbaikan eror
+[33m2143c28[m Update Task List
+[33md61769a[m Update Task Detail (tambah delete dan edit button)
+[33md8f1d51[m feat(task): menambahkan halaman edit task dengan data awal dan proses update
+[33mb90c3f4[m tambah halaman buat task baru + pilih kategori
+[33m88531f3[m restore frontend structure
+[33m2d3913b[m update home page
+[33m813b3bb[m get id task
+[33mec7cec1[m routing antar screen task
+[33mfd1a8aa[m index task
+[33m2420469[m test api
+[33m46a9b88[m buat type task
+[33m09cd03a[m buat service task
+[33mf973430[m set base api
+[33mb9ede49[m menambahkan interface Category untuk kategori tugas
+[33m04ac711[m update struktur frontend
+[33mc3dca03[m memperbaiki struktur folder mobile
+[33m7bbe439[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m service put task
+[33m6e6596f[m service delete task
+[33m1933fcd[m service get 1 task
+[33m819fe7c[m membuat slug task
+[33ma614284[m update logic create task
+[33m0e1f93a[m update logic service create category
+[33m1cb6aa9[m update service put category
+[33md199cdf[m update service delete category
+[33m52fcf00[m membuat service update category
+[33mce5ca77[m membuat service delete category
+[33m8db333e[m service ambil 1 category
+[33m6544fa2[m membuat slug caategory
+[33m9c90953[m menambahkan detail komentar di route task
+[33m71ea7eb[m menambahkan service create task
+[33ma1549aa[m menambahkan service get task
+[33m7d3f062[m membuat folder tasks dan menambahkan file route.ts
+[33m43bf2b7[m menambahkan detail komentar
+[33mc593122[m service create category
+[33ma67b8a7[m menambahkan service get category
+[33mb3071fd[m membuat folder category dan menambahkan file route di dalamnya
+[33mf9515ab[m menambahkan detail komentar
+[33m42023ad[m menambahkah detail komentar
+[33m0f23900[m memperbaiki kode service put/delete
+[33m2c83c53[m menambahkan detail komentar
+[33mffd4986[m memperbaiki kode service delete
+[33m39fdef2[m menambahkan detail komentar
+[33m0096b3f[m memperbaiki bug dmna sebelunya slug id tidak mau kepanggil/tertuju
+[33m7f8ba3e[m menghapus file prisma config
+[33m516cb8c[m menghapus node modules
+[33m774f029[m menambahkan file prisma config
+[33m80afde3[m mengupdate/memperbaiki kode di route.ts yaitu service get all user dan cerate user
+[33m3ab755c[m mengubah id yang tadinya string ke id
+[33m463cedb[m service update user
+[33mcbe57a8[m service delete user
+[33m8761542[m service ambil satu user
+[33mb8d466c[m menambahkan service create user
+[33m68cf537[m ganti gaya penulisan di route.ts :v
+[33m812a666[m membuat post user
+[33ma4a2d63[m memabuat get ambil semua user
+[33m822039d[m mengubah prisma client
+[33m79fc5ca[m membuat database
+[33m1affce5[m menambahkan relasi subtask dan task
+[33m054ad44[m menambahkan relasi modeltask dan kategori
+[33m51209bb[m menambahkan relasimodeltask dan user
+[33m514b403[m menambahkan relasikategori user
+[33m679286b[m menambahkan foreign key task di model subtask
+[33m2f11a14[m menambahkan foreign key kategori di model task
+[33m5a88119[m menambahkan foreign key user di model task
+[33md971476[m menambahkan foreign key user di kategori
+[33m04f07f2[m menambahkan model subTask
+[33m68d52c0[m menambahkan model task
+[33m71ba5e5[m menambahkan model kategori pada schema prisma
+[33meb00850[m menambahkan modal user pada schema prisma
+[33m862592c[m membuat folder mobile
+[33ma93ff06[m Membuat folder api
