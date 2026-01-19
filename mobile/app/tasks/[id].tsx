@@ -54,6 +54,22 @@ export default function TaskDetail() {
       year: "numeric",
     });
   };
+  const toggleComplete = async () => {
+    if (!task) return;
+
+    try {
+      const res = await TaskService.update(task.id, {
+        ...task,
+        isCompleted: !task.isCompleted
+      });
+
+      if (res.success) {
+        setTask(res.data);
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
 
   // Ganti fungsi toggleComplete dan tambahkan fungsi baru
   const handleDelete = async () => {
